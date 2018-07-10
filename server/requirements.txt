@@ -1,0 +1,5 @@
+aiohttp
+uvloop
+gino
+aiocontextvars
+aioredis
