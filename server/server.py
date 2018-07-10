@@ -2,7 +2,9 @@ import os
 import asyncio
 import aioredis
 import aiohttp.web
+import aiohttp_jinja2
 import gino
+import jinja2
 from sqlalchemy.engine.url import URL
 import uvloop
 import config
@@ -22,9 +24,11 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     app = aiohttp.web.Application(loop=loop, debug=True)
     app.router.add_routes(routes)
+    app.router.add_static('/static', config.path_static_files)
     app['config'] = {
         'path_camera_captures': config.path_camera_captures
     }
+    aiohttp_jinja2.setup(app=app, loader=jinja2.FileSystemLoader(config.path_template_files))
 
     # Конфигурация драйвера базы данных (PostgreSQL)
     app.middlewares.append(db)

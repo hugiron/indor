@@ -14,3 +14,5 @@ redis_password = "LeDtQw9m"
 
 path_camera_captures = 'captures'
 path_sql_scripts = 'sql'
+path_static_files = 'static'
+path_template_files = 'views'
