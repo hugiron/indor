@@ -77,12 +77,53 @@ function postStatus() {
     }, function (data) {});
 }
 
+function getFrame(cameraId) {
+    jQuery('#camera-frame').attr('src', `/api/camera/${cameraId}/frame`);
+}
+
+function getPlaces(cameraId) {
+    let accessToken = localStorage.getItem('access_token');
+    request('GET', `/api/camera/${cameraId}/place`, {access_token: accessToken}, function (data) {
+        var imagePosition = jQuery('#camera-frame').position();
+        for (var i = 0; i < data['place'].length; ++i) {
+            var id = data['place'][i]['id'];
+            var label = data['place'][i]['label'];
+            var status = data['place'][i]['status'];
+            var x = data['place'][i]['x'];
+            var y = data['place'][i]['y'];
+            var left = x + imagePosition.left;
+            var top = y + imagePosition.top;
+            var color = status ? '#dd4b39' : '#00a65a';
+            jQuery('#div-frame').append(`<span id="place_${id}" style="font-size: x-small; color: ${color}; position: absolute; left: ${left}px; top: ${top}px;" onclick="selectPlace(${id}, '${label}', ${x}, ${y})"><i class="fa fa-circle"></i></span>`);
+        }
+    })
+}
+
+function selectPlace(placeId, label, x, y) {
+    jQuery('#place-info i').html(` ${label} (${x}, ${y})`);
+    jQuery('#place-info button').attr('onclick', `deletePlace(${placeId})`);
+    jQuery('#place-info').css('display', 'block');
+}
+
+function deletePlace(placeId) {
+    let accessToken = localStorage.getItem('access_token');
+    let cameraId = sessionStorage.getItem('current_camera_id');
+    request('DELETE', `/api/camera/${cameraId}/place/${placeId}`, {access_token: accessToken}, function (data) {
+        jQuery(`#place_${placeId}`).remove();
+        jQuery('#place-info').css('display', 'none');
+    })
+}
+
 function clickCamera(cameraId) {
     jQuery('#content').css('display', 'block');
+    jQuery('#place-info').css('display', 'none');
+    jQuery('#div-frame').html('<img id="camera-frame" src="" />');
     if (sessionStorage.getItem('current_camera_id') != null)
         jQuery(`#camera_${sessionStorage.getItem('current_camera_id')} a`).removeClass('active');
     sessionStorage.setItem('current_camera_id', cameraId);
     jQuery(`#camera_${cameraId} a`).addClass('active');
     jQuery('#camera-name-header').html(sessionStorage.getItem(`camera_${cameraId}_name`));
     getStatus(cameraId);
+    getFrame(cameraId);
+    getPlaces(cameraId);
 }

@@ -10,7 +10,7 @@ BEGIN
   SELECT bool_and(place.status) INTO _status FROM place
     INNER JOIN camera
       ON (camera.id = place.camera_id)
-  WHERE place.label = NEW.label AND camera.account_id = _account_id;
+  WHERE place.label = NEW.label AND camera.account_id = _account_id AND camera.status = true;
 
   UPDATE account
     SET places = jsonb_set(places, format('{%s}', NEW.label)::TEXT[], cast(_status AS TEXT)::jsonb, true)

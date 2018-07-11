@@ -87,7 +87,8 @@ class PlaceController(object):
         try:
             camera_id = int(request.match_info['camera_id'])
             place_id = int(request.match_info['place_id'])
-            access_token = request.rel_url.query.get('access_token')
+            request_data = await request.post()
+            access_token = request_data.get('access_token')
             if not access_token:
                 raise MissingParameter('access_token')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
