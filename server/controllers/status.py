@@ -15,7 +15,7 @@ class StatusController(object):
                 raise MissingParameter('access_token')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
             if account_id is None:
-                raise InvalidParameter('access_token')
+                raise InvalidAccessToken()
             camera = await db.select([Camera.status])\
                 .where(db.and_(Camera.id == camera_id,
                                Camera.account_id == account_id))\
@@ -44,7 +44,7 @@ class StatusController(object):
                 raise InvalidParameter('status')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
             if account_id is None:
-                raise InvalidParameter('access_token')
+                raise InvalidAccessToken()
             status, result = await Camera.update\
                 .values(status=bool(distutils.util.strtobool(status)))\
                 .where(db.and_(Camera.id == camera_id,

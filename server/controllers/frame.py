@@ -1,4 +1,5 @@
 import os
+import time
 import aiohttp.web
 from models import db
 from models.account import Account
@@ -28,7 +29,7 @@ class FrameController(object):
                 raise MissingParameter('access_token')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
             if account_id is None:
-                raise InvalidParameter('access_token')
+                raise InvalidAccessToken()
             user_camera = await db.select([Camera.delay])\
                 .where(db.and_(Camera.id == camera_id,
                                Camera.account_id == account_id))\
@@ -44,7 +45,7 @@ class FrameController(object):
             with open(frame_path, 'wb') as frame_file:
                 frame_file.write(frame.file.read())
             await Camera.update \
-                .values(is_complete=False) \
+                .values(is_complete=False, last_update=int(time.time())) \
                 .where(Camera.id == camera_id) \
                 .gino \
                 .status()

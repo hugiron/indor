@@ -16,10 +16,15 @@ def parse_args():
     # TODO: Add helpers!!!
     parser.add_argument('--token_size', type=int, default=32, help='')
     subparsers = parser.add_subparsers(dest='cmd')
+    create_parser = subparsers.add_parser('create')
+    create_parser.add_argument('--name', type=str, required=True, help='')
     add_parser = subparsers.add_parser('add')
-    add_parser.add_argument('--name', type=str, required=True, help='')
+    add_parser.add_argument('--token', type=str, required=True, help='')
+    add_parser.add_argument('--username', type=str, required=True, help='')
     refresh_parser = subparsers.add_parser('refresh')
     refresh_parser.add_argument('--token', type=str, required=True, help='')
+    delete_parser = subparsers.add_parser('delete')
+    delete_parser.add_argument('--token', type=str, required=True, help='')
     return parser.parse_args()
 
 
@@ -50,29 +55,63 @@ def generate_token():
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(args.token_size))
 
 
-async def add_account(connections):
+async def create_account(connections):
     account = await Account.create(name=args.name)
     access_token = generate_token()
     await Account.redis_set_id(redis=connections['redis'], access_token=access_token, id=account.id)
-    print('Account %s was created with access token: %s' % (account.name, access_token))
+    await Account.redis_set_username(redis=connections['redis'], access_token=access_token, username='Administrator')
+    print('Account %s [#%d] was created with access token: %s' % (account.name, account.id, access_token))
+
+
+async def add_account(connections):
+    username = await Account.redis_get_username(redis=connections['redis'], access_token=args.token)
+    if username == 'Administrator':
+        account_id = await Account.redis_get_id(redis=connections['redis'], access_token=args.token)
+        access_token = generate_token()
+        await Account.redis_set_id(redis=connections['redis'], access_token=access_token, id=account_id)
+        await Account.redis_set_username(redis=connections['redis'], access_token=access_token, username=args.username)
+        print('User %s was added into account %d with access token: %s' % (args.username, account_id, access_token))
+    elif username is None:
+        print('Invalid access token')
+    else:
+        print('Current user is not administrator')
 
 
 async def refresh_account(connections):
     account_id = await Account.redis_get_id(redis=connections['redis'], access_token=args.token)
     if account_id is not None:
+        username = await Account.redis_get_username(redis=connections['redis'], access_token=args.token)
         access_token = generate_token()
         await Account.redis_set_id(redis=connections['redis'], access_token=access_token, id=account_id)
+        await Account.redis_set_username(redis=connections['redis'], access_token=access_token, username=username)
         await Account.redis_delete(redis=connections['redis'], access_token=args.token)
         print('New access token: %s' % access_token)
+    else:
+        print('Invalid access token')
+
+
+async def delete_account(connections):
+    username = await Account.redis_get_username(redis=connections['redis'], access_token=args.token)
+    if username != 'Administrator':
+        await Account.redis_delete(redis=connections['redis'], access_token=args.token)
+        print('User %s was deleted' % username)
+    elif username is None:
+        print('Invalid access token')
+    else:
+        print('Current user is administrator')
 
 
 async def main():
     connections = await init_connections()
     try:
-        if args.cmd == 'add':
+        if args.cmd == 'create':
+            await create_account(connections=connections)
+        elif args.cmd == 'add':
             await add_account(connections=connections)
         elif args.cmd == 'refresh':
             await refresh_account(connections=connections)
+        elif args.cmd == 'delete':
+            await delete_account(connections=connections)
     except Exception as msg:
         print(msg)
     finally:

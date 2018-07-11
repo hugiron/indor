@@ -1,3 +1,4 @@
+from controllers.account import *
 from controllers.admin import *
 from controllers.camera import *
 from controllers.frame import *

@@ -13,7 +13,7 @@ class CameraController(object):
                 raise MissingParameter('access_token')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
             if account_id is None:
-                raise InvalidParameter('access_token')
+                raise InvalidAccessToken()
             user_cameras = await db.select([Camera.id, Camera.name])\
                 .where(Camera.account_id == account_id)\
                 .gino\
@@ -37,7 +37,7 @@ class CameraController(object):
                 raise MissingParameter('name')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
             if account_id is None:
-                raise InvalidParameter('access_token')
+                raise InvalidAccessToken()
             camera = await db.select([Camera.id])\
                 .where(db.and_(Camera.account_id == account_id,
                                Camera.name == name))\

@@ -19,5 +19,15 @@ class Account(db.Model):
         await redis.set('%s_id' % access_token, str(id))
 
     @staticmethod
+    async def redis_get_username(redis, access_token):
+        username = await redis.get('%s_username' % access_token)
+        return username.decode('utf-8') if username is not None else username
+
+    @staticmethod
+    async def redis_set_username(redis, access_token, username):
+        await redis.set('%s_username' % access_token, username)
+
+    @staticmethod
     async def redis_delete(redis, access_token):
         await redis.delete('%s_id' % access_token)
+        await redis.delete('%s_username' % access_token)

@@ -10,6 +10,10 @@
   <link rel="stylesheet" href="/static/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="/static/plugins/iCheck/square/blue.css">
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <script>
+    if (localStorage.getItem('access_token') != null)
+        window.location.href = '/';
+  </script>
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
@@ -19,16 +23,19 @@
 
   <div class="card">
     <div class="card-body login-card-body">
-      <p class="login-box-msg">Sign in to start your session</p>
+      <p class="login-box-msg">Вход в панель администратора</p>
 
       <form action="#" method="post">
         <div class="form-group has-feedback">
-          <input type="text" name="access_token" class="form-control" placeholder="Access token">
+          <input type="text" id="access-token" class="form-control" placeholder="Access token">
+        </div>
+        <div id="empty-token" class="callout callout-danger bg-danger" style="display: none;">
+          Для входа в панель администратора необходимо ввести токен доступа
         </div>
         <div class="row">
           <div class="col-8"></div>
           <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+            <button type="button" onclick="login();" class="btn btn-primary btn-block btn-flat">Войти</button>
           </div>
         </div>
       </form>
@@ -36,6 +43,7 @@
   </div>
 </div>
 
+<script src="/static/dist/js/indor.js"></script>
 <script src="/static/plugins/jquery/jquery.min.js"></script>
 <script src="/static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/static/plugins/iCheck/icheck.min.js"></script>

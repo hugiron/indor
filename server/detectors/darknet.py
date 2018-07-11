@@ -1,3 +1,4 @@
+import os
 from ctypes import *
 
 
@@ -33,9 +34,24 @@ class METADATA(Structure):
 
 
 class Detector(object):
-    __slots__ = ['lib', 'make_boxes', 'free_ptrs', 'num_boxes', 'make_probs', 'load_net', 'free_image', 'load_meta', 'load_image', 'network_detect', 'network', 'meta']
+    __slots__ = ['lib', 'make_boxes', 'free_ptrs', 'num_boxes', 'make_probs', 'load_net', 'free_image', 'load_meta',
+                 'load_image', 'network_detect', 'network', 'meta']
 
-    def __init__(self, yolo_config: str, coco_config: str, weights: str, libdarknet='libdarknet.so'):
+    __install_script__ = ['wget https://github.com/pjreddie/darknet/archive/master.zip',
+                          'unzip master && rm master.zip',
+                          'mv darknet-master ~/.darknet',
+                          'cd ~/.darknet',
+                          'make',
+                          'wget https://pjreddie.com/media/files/yolov3.weights']
+
+    def __init__(self):
+        if not os.path.exists('~/.darknet'):
+            os.system(' && '.join(self.__install_script__))
+        yolo_config = '~/.darknet/cfg/yolov3.cfg'
+        coco_config = '~/.darknet/cfg/coco.data'
+        weights = '~/.darknet/yolov3.weights'
+        libdarknet = '~/.darknet/libdarknet.so'
+
         self.lib = CDLL(libdarknet, RTLD_GLOBAL)
         self.lib.network_width.argtypes = [c_void_p]
         self.lib.network_width.restype = c_int

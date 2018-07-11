@@ -15,7 +15,7 @@ class PlaceController(object):
                 raise MissingParameter('access_token')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
             if account_id is None:
-                raise InvalidParameter('access_token')
+                raise InvalidAccessToken()
             places = await Place.join(Camera, db.and_(Camera.id == Place.camera_id,
                                                       Camera.account_id == account_id))\
                 .select()\
@@ -53,7 +53,7 @@ class PlaceController(object):
                 raise InvalidParameter('y')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
             if account_id is None:
-                raise InvalidParameter('access_token')
+                raise InvalidAccessToken()
             user_camera = await db.select([Camera.id])\
                 .where(db.and_(Camera.id == camera_id,
                                Camera.account_id == account_id))\
@@ -92,7 +92,7 @@ class PlaceController(object):
                 raise MissingParameter('access_token')
             account_id = await Account.redis_get_id(request.app['redis'], access_token)
             if account_id is None:
-                raise InvalidParameter('access_token')
+                raise InvalidAccessToken()
             status, result = await Place.delete\
                 .where(db.and_(Place.id == place_id,
                                Place.camera_id == camera_id,
