@@ -90,6 +90,7 @@ async def download_frame(camera_id):
 
 async def main():
     await init_connections()
+    allow_labels = {'car', 'truck', 'cell_phone', 'bus'}
     detector_id = random.randint(1, 2 ** 24)
     detector = Detector(yolo_config=args.yolo_config,
                         coco_config=args.coco_config,
@@ -108,7 +109,7 @@ async def main():
             await download_frame(camera_id=camera_id)
             objects = detector(image=args.filename)
             dist = [((obj.x - place.x) ** 2 + (obj.y - place.y) ** 2, obj, place)
-                    for obj in objects for place in places]
+                    for obj in objects if obj.label in allow_labels for place in places]
             dist.sort(key=lambda x: x[0])
             used = set()
             values = dict()
