@@ -1,3 +1,4 @@
+import __main__
 import asyncio
 import aiohttp
 import argparse
@@ -17,11 +18,6 @@ from models.place import Place
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    # TODO: Add helpers!!!
-    parser.add_argument('--yolo_config', type=str, default='darknet/cfg/yolov3.cfg', help='')
-    parser.add_argument('--coco_config', type=str, default='darknet/cfg/coco.data', help='')
-    parser.add_argument('--weights', type=str, default='darknet/yolo.weights', help='')
-    parser.add_argument('--libdarknet', type=str, default='darknet/libdarknet.so', help='')
     parser.add_argument('--host', type=str, default='http://localhost:9000', help='Base endpoint for API')
     parser.add_argument('--delay', type=int, default=1, help='Delay in the absence of new frames in the database')
     parser.add_argument('--filename', type=str, default='current_frame.jpg', help='Name of file to save frame')
@@ -92,10 +88,7 @@ async def main():
     await init_connections()
     allow_labels = {'car', 'truck', 'cell_phone', 'bus'}
     detector_id = random.randint(1, 2 ** 24)
-    detector = Detector(yolo_config=args.yolo_config,
-                        coco_config=args.coco_config,
-                        weights=args.weights,
-                        libdarknet=args.libdarknet)
+    detector = Detector()
     logging.basicConfig(level=logging.ERROR, filename='%s::%d.log' % (__main__.__file__[:-3], detector_id),
                         format=u'%(filename)s[LINE:%(lineno)d] #%(levelname)s [%(asctime)s] %(message)s')
 
