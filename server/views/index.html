@@ -71,6 +71,34 @@
             <div id="div-frame" class="col-md-8">
             </div>
             <div class="col-md-4">
+              <div class="box box-info">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Добавить метку</h3>
+                </div>
+                <form class="form-horizontal">
+                  <div class="box-body">
+                    <div class="form-group">
+                      <div class="col-sm-12">
+                        <input type="text" class="form-control" id="input-label" placeholder="Идентификатор">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="row" style="margin-left: 0px;">
+                        <div class="col-md-5">
+                          <input type="text" class="form-control" id="input-x" placeholder="x" readonly>
+                        </div>
+                        <div class="col-md-5">
+                          <input type="text" class="form-control" id="input-y" placeholder="y" readonly>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="box-footer">
+                    <button type="button" class="btn btn-default" onclick="clearForm()">Отменить</button>
+                    <button type="button" class="btn btn-info pull-right" onclick="createPlace()">Создать</button>
+                  </div>
+                </form>
+              </div>
               <div id="place-info" style="display: none;" class="alert bg-white">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                 <span style="font-size: medium;"><i class="icon fa fa-map-marker"></i></span>

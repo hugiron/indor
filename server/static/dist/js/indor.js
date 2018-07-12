@@ -91,10 +91,10 @@ function getPlaces(cameraId) {
             var status = data['place'][i]['status'];
             var x = data['place'][i]['x'];
             var y = data['place'][i]['y'];
-            var left = x + imagePosition.left;
-            var top = y + imagePosition.top;
+            var left = x + imagePosition.left - 3;
+            var top = y + imagePosition.top - 9;
             var color = status ? '#dd4b39' : '#00a65a';
-            jQuery('#div-frame').append(`<span id="place_${id}" style="font-size: x-small; color: ${color}; position: absolute; left: ${left}px; top: ${top}px;" onclick="selectPlace(${id}, '${label}', ${x}, ${y})"><i class="fa fa-circle"></i></span>`);
+            jQuery('#div-frame').append(`<span id="place_${id}" style="cursor: default; font-size: x-small; color: ${color}; position: absolute; left: ${left}px; top: ${top}px;"><i style="cursor: default;" class="fa fa-circle" onclick="selectPlace(${id}, '${label}', ${x}, ${y})"></i></span>`);
         }
     })
 }
@@ -114,10 +114,42 @@ function deletePlace(placeId) {
     })
 }
 
+function clearForm() {
+    jQuery('#input-x').val('');
+    jQuery('#input-y').val('');
+    jQuery('#input-label').val('');
+}
+
+function createPlace() {
+    let accessToken = localStorage.getItem('access_token');
+    let cameraId = sessionStorage.getItem('current_camera_id');
+    let label = jQuery('#input-label').val();
+    let x = jQuery('#input-x').val();
+    let y = jQuery('#input-y').val();
+    request('POST', `/api/camera/${cameraId}/place`, {
+        access_token: accessToken,
+        label: label,
+        x: x,
+        y: y
+    }, function(data) {
+        clearForm();
+        var imagePosition = jQuery('#camera-frame').position();
+        var left = parseInt(x) + imagePosition.left - 3;
+        var top = parseInt(y) + imagePosition.top - 9;
+        jQuery('#div-frame').append(`<span id="place_${data['id']}" style="cursor: default; font-size: x-small; color: #00a65a; position: absolute; left: ${left}px; top: ${top}px;"><i style="cursor: default;" class="fa fa-circle" onclick="selectPlace(${data['id']}, '${label}', ${x}, ${y})"></i></span>`);
+    })
+}
+
 function clickCamera(cameraId) {
     jQuery('#content').css('display', 'block');
     jQuery('#place-info').css('display', 'none');
     jQuery('#div-frame').html('<img id="camera-frame" src="" />');
+    jQuery('#camera-frame').click(function(e) {
+        var imagePosition = jQuery('#camera-frame').offset();
+        jQuery('#input-x').val(Math.floor(e.pageX - imagePosition.left));
+        jQuery('#input-y').val(Math.floor(e.pageY - imagePosition.top));
+    })
+    clearForm();
     if (sessionStorage.getItem('current_camera_id') != null)
         jQuery(`#camera_${sessionStorage.getItem('current_camera_id')} a`).removeClass('active');
     sessionStorage.setItem('current_camera_id', cameraId);
